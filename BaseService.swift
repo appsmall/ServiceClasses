@@ -34,6 +34,33 @@ class BaseService: NSObject {
       
     }
     
+    // MARK:- UPLOAD IMAGE
+    func uploadImageRequest(completion: @escaping (Result<Any>) -> ()) {
+        let urlString = "https://api.imgur.com/3/upload"
+        
+        if let url = URL(string: urlString) {
+            Alamofire.upload(multipartFormData: { (multipartFormData) in
+                
+                let image = UIImage(named: "aa")
+                let imageData = image?.jpegData(compressionQuality: 0.1)
+                multipartFormData.append(imageData!, withName: "file", mimeType: "image/jpg")
+                
+            }, to: url, headers: nil) { (encodingResult) in
+                switch encodingResult {
+                    
+                case .success(let upload, _, _) :
+                    upload.responseJSON(completionHandler: { (response) in
+                        completion(.success(response.result.value))
+                    })
+                    
+                case .failure :
+                    print("")
+                }
+            }
+        }
+    }
+    
+    
     // MARK:- GET METHOD WITH RESPONSE DATA (for getting user image in binary form)
     func sendGetRequestForGettingUserPhotoWithObj(urlString: String, obj: Dictionary<String,String>?, httpHeader: Dictionary<String,String>?, serviceURL: String, serviceType: ServiceConstants.ServiceType, requestType: ServiceConstants.RequestType, delegate: GetResponseDataProtocol) {
         let stringURL = urlString + serviceURL
